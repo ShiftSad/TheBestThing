@@ -1,21 +1,39 @@
 package main
 
 import (
-  "fmt"
+	"TheBestThing/endpoints"
+	"TheBestThing/models"
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"log"
+	"os"
 )
 
-//TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
+var db *gorm.DB
 
 func main() {
-  //TIP <p>Press <shortcut actionId="ShowIntentionActions"/> when your caret is at the underlined text
-  // to see how GoLand suggests fixing the warning.</p><p>Alternatively, if available, click the lightbulb to view possible fixes.</p>
-  s := "gopher"
-  fmt.Println("Hello and welcome, %s!", s)
+	// Connect to database
+	dsn := os.Getenv("DSN")
 
-  for i := 1; i <= 5; i++ {
-	//TIP <p>To start your debugging session, right-click your code in the editor and select the Debug option.</p> <p>We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-	// for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.</p>
-	fmt.Println("i =", 100/i)
-  }
+	log.Println("Connecting to database")
+
+	var err error
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect database with error: ", err)
+	}
+
+	err = db.AutoMigrate(&models.Thing{})
+	if err != nil {
+		log.Fatal("Failed to migrate schema with error: ", err)
+	}
+
+	// Initialize the router
+	r := gin.Default()
+
+	r.POST("/admin/thing", func(c *gin.Context) { endpoints.ThingRequest(c, db) })
+
+	log.Println("Server started, running on port 8080")
+	log.Fatal(r.Run("0.0.0.0:8080"))
 }
