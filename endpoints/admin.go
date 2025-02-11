@@ -6,12 +6,21 @@ import (
 	"gorm.io/gorm"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func ThingRequest(c *gin.Context, db *gorm.DB) {
 	var thing models.Thing
 	if err := c.ShouldBindJSON(&thing); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Ensure image is a valid URL
+	if thing.Image == "" ||
+		!(strings.HasPrefix(thing.Image, "http://") || strings.HasPrefix(thing.Image, "https://")) ||
+		!(strings.HasSuffix(thing.Image, ".jpg") || strings.HasSuffix(thing.Image, ".jpeg") || strings.HasSuffix(thing.Image, ".png")) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image URL"})
 		return
 	}
 

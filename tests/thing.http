@@ -1,0 +1,30 @@
+### Create a thing with valid data
+POST http://localhost:8080/admin/thing
+Content-Type: application/json
+
+{
+  "name": "Thing-{{$uuid}}",
+  "description": "Random description {{$uuid}}",
+  "image": "https://i.imgur.com/abqwO0n.jpeg"
+}
+
+### Create a thing with invalid URL
+POST http://localhost:8080/admin/thing
+Content-Type: application/json
+
+{
+  "name": "Thing-{{$uuid}}",
+  "description": "Random description {{$uuid}}",
+  "image": "invalid_url"
+}
+
+### Upload an image
+POST http://localhost:8080/admin/image
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="random-image-{{}}.jpg"
+Content-Type: image/jpeg
+
+< ./banana-azul.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
