@@ -14,4 +14,11 @@ func ThingRequest(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	thing.ID = 0
+
+	if err := db.Create(&thing).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create thing"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"id": thing.ID})
 }
